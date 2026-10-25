@@ -1,5 +1,24 @@
 # X0X for the M-VAVE FM-1
 
+> **This is a fork: X0X for the FM-1 Companion Studio.** It's [Charles Vestal's X0X](https://github.com/charlesvestal/fm1-x0x)
+> (from its commit 54194c5) with a program added that runs X0X natively on the
+> [FM-1 Companion](https://github.com/xoxoaudiolabs/FM-1-Companion) Studio, a Raspberry Pi 3 B+ with a touchscreen,
+> played from a real FM-1. Everything below this box is X0X's own README, unchanged, and its links go to the
+> original project. For X0X on an FM-1, use the original's releases and installer: nothing here is needed for that.
+>
+> **What's different from the original:**
+> - **`studio/`** (new): the Studio program, its build script and its README, with what's been tested on the real
+>   Studio and what hasn't: **[studio/README.md](studio/README.md)**.
+> - **`host/x0x_host.c`**: three lines, a hook that lets the Studio program pass on the MIDI clock X0X sends. It
+>   does nothing in any other build.
+> - **`firmware/src/seq/sequencer.c`**: when clock ticks arrive together (the Studio hands MIDI over in small
+>   bursts), the time since the last ones is shared between them, so the tempo X0X shows while following a clock
+>   is right; it read 115 for 120 on the Studio. On an FM-1, ticks arrive one at a time, so it should change
+>   nothing there, but no FM-1 firmware has been built from this fork or tried. X0X's sequencer and external-clock
+>   host tests pass with it.
+>
+> Licence as X0X's: GPL-3.0-only.
+
 X0X turns the M-VAVE FM-1 into a groovebox: a **909**, an **808**, two **303s** with an acid line
 generator, and a **breakbeat player**, all playing at once. Each part can play its own pattern,
 you can string patterns into a song, and you can record knob moves. Everything runs in stereo,
