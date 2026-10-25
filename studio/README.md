@@ -49,8 +49,12 @@ FM-1):
   clip check clean).
 - Saving: on a PC, a sound changed (KNOB 1: TUNE 34 → 44) and saved at the stop; on the Studio, saved at the stop.
 
-**Not tested yet:** playing it from a real FM-1 by hand; PLAY X0X, < HOME, HOLD OFF and its + / − in the Companion;
-the 808, 303s, breaks and song mode on the Studio; loading a save back on the Studio.
+Then by hand, from a real FM-1 A on SLOOP Remote Out (OUT 16), opened from the Companion's PLAY X0X: ENV held shows
+X0X's help and places accents (ENV does nothing alone in X0X; on an FM-1 running X0X it also lights the accents on
+the key LEDs, which here are FM-1 A's own, showing SLOOP).
+
+**Not tested yet:** every control one by one; < HOME, HOLD OFF and its + / − in the Companion; the 808, 303s,
+breaks and song mode on the Studio; loading a save back on the Studio.
 
 ## License
 
