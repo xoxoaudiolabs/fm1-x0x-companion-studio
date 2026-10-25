@@ -9,7 +9,8 @@ It's X0X's own code: its UI, sequencer and every engine, built for the Pi the wa
 (`web/emu/x0x_web.c`): X0X's host simulator (`host/x0x_host.c`) with its script engine left out, and
 `x0x_studio.c` giving it the Studio's sound, screen, saving and the FM-1's panel. Nothing is emulated.
 
-**Status: in development, not released.** See *Tested* below.
+**Status:** works with FM-1 Companion Studio v1.5 or later. What's been tried on the real Studio and what
+hasn't yet: *Tested* below.
 
 ## How it works
 
@@ -40,21 +41,37 @@ The Companion (Studio v1.5 or later) shows **PLAY X0X** in MORE once that file e
 
 ## Tested
 
-On the real Studio, 2026-10-25, driven by a script sending the FM-1's REMOTE OUT messages (not yet by hand on an
-FM-1):
+On the real Studio (Raspberry Pi 3 B+, Raspberry Pi OS Trixie), 2026-10-25.
 
-- X0X's host simulator on the Pi: its showcase, perf and jam scripts render in 5–8% of real time on one core.
-- X0X's 909 screen drawn on the Studio's screen; steps toggled from the keys; PLAY starts it (the playhead runs).
-- Its sound reaches PipeWire ("X0X"), 0 errors; the Studio's recorder records it (8ths at 125 BPM, peak 41%, its
-  clip check clean).
-- Saving: on a PC, a sound changed (KNOB 1: TUNE 34 → 44) and saved at the stop; on the Studio, saved at the stop.
+**By hand, from a real FM-1 A** running SLOOP Remote Out (REMOTE on OUT 16), opened from the Companion's
+**PLAY X0X**:
+- X0X's screens on the Studio, moved around from FM-1 A's panel.
+- ENV held: X0X's help, and accents placed. (ENV does nothing alone in X0X. On an FM-1 running X0X it also lights
+  the accents on the key LEDs; here those LEDs are FM-1 A's own, showing SLOOP.)
+- FM-1 A's REMOTE OUT itself: every knob turn and MASTER seen arriving on channel 16.
 
-Then by hand, from a real FM-1 A on SLOOP Remote Out (OUT 16), opened from the Companion's PLAY X0X: ENV held shows
-X0X's help and places accents (ENV does nothing alone in X0X; on an FM-1 running X0X it also lights the accents on
-the key LEDs, which here are FM-1 A's own, showing SLOOP).
+**Stress tests, driven by a script** sending the same MIDI messages FM-1 A's REMOTE OUT sends (not by hand),
+recorded by the Companion's recorder, X0X's screen captured 8 times a second (videos made of both):
+- **X0X alone, 41 s:** a song written on every part (the 909 with an accent, the 808, a TB-3PO line on each 303,
+  the break on every step), then, playing: the 909 muted and unmuted (HOME, black key 1), 303B mutated in TB-3PO
+  (ARP, OCT−), the break played backwards (black key 9 held) and the tempo 125 → 135 → 125 (HOME + SELECT). Each
+  step seen on the captured screen. No gaps in the sound, peak 42%, the recorder's clip check found nothing,
+  0 PipeWire errors. X0X took 8–31% of one core (about 20% on average), load average 0.5.
+- **X0X and SLOOP Remote Out's Studio program at once, 33 s,** both at 120 BPM: X0X as above, SLOOP playing four
+  recorded tracks. No gaps, the clip check found nothing (peak 94%: two apps at full level add up), 0 PipeWire
+  errors; X0X about 19% of a core, SLOOP about 9%. They were started together but share no clock, so they drift
+  apart. This ran both as test programs of their own: the Companion itself runs one app at a time (starting
+  one stops the other).
+- Both exited cleanly when stopped (whether they saved wasn't checked in these runs).
+- Earlier checks: X0X's host simulator renders its showcase, perf and jam scripts in 5–8% of real time on one
+  core; a sound change (KNOB 1: TUNE 34 → 44) saved at the stop on a PC; on the Studio, a first short check
+  (three drum tracks, 8ths at 125 BPM) saved its file at the stop.
 
-**Not tested yet:** every control one by one; < HOME, HOLD OFF and its + / − in the Companion; the 808, 303s,
-breaks and song mode on the Studio; loading a save back on the Studio.
+**Not tested yet:**
+- Every control one by one by hand (the stress test's controls were sent by a script).
+- The Companion's **< HOME**, **HOLD OFF** and + / − for X0X, and its MIXER channel.
+- Song mode on the Studio.
+- A save loaded back by X0X on the Studio after a restart.
 
 ## License
 
