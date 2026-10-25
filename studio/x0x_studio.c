@@ -8,7 +8,7 @@
  * against a simulated FM-1), with its script engine left out (X0X_WEB); this file gives it the Studio's sound,
  * screen, the FM-1's panel and a file for what it saves.
  *
- *   x0x-companion-studio --fb /dev/fb0 --midi FIFO [--ch 16] [--state FILE]
+ *   x0x-companion-studio --fb /dev/fb0 --midi FIFO [--ch 16] [--state FILE] [--clock-out FIFO]...
  *
  *   screen  X0X's 240x240 picture at 4/3 (320x320) in the middle of the framebuffer, x 80..399; the margins are
  *           the Companion's. SIGUSR1 hides it (it keeps running and playing, drawing nothing), SIGUSR2 shows it
@@ -19,6 +19,10 @@
  *   state   X0X's saved objects (its settings, sounds, patterns, song, motion, and the copy before each) in
  *           --state (default ~/.local/share/x0x-companion-studio/store.bin): read before it starts, written
  *           when X0X saves (it autosaves while stopped) and at the stop, after a last save of what's unsaved
+ *   clock   MIDI clock and START / CONTINUE / STOP in the FIFO too (the clock only while its sender plays): X0X follows them by itself, as on an FM-1; and
+ *           the clock X0X sends (GLOBAL > CLOCK OUT, while it isn't following one) written to each --clock-out FIFO
+ *           (another app's --midi): the two cabled together, as two FM-1s would be. A FIFO with no reader yet is
+ *           tried again every half second; a pulse it can't take is dropped, never waited for
  *   stop    SIGTERM or SIGINT */
 #define _GNU_SOURCE                     /* (F_SETPIPE_SZ) */
 #include <errno.h>                      /* (before the simulator: it defines __attribute__ away) */
@@ -29,6 +33,8 @@
 #include <unistd.h>
 
 static void web_audio(const int32_t *blk, uint32_t n);
+static void clock_out(uint32_t pkt);
+#define X0X_MIDI_OUT_HOOK clock_out
 #include "../host/x0x_host.c"
 
 #undef __attribute__
@@ -61,7 +67,8 @@ static void open_sound(void)
                 "'{\"node.name\":\"x0x-companion-studio\",\"node.description\":\"X0X\"}' -", "w");
     if (pcm) {
         fcntl(fileno(pcm), F_SETPIPE_SZ, 4096); /* a small pipe: the write blocks after ~23 ms, so sound keeps time */
-        setvbuf(pcm, NULL, _IOFBF, 4096);
+        setvbuf(pcm, NULL, _IOFBF, 1024);   /* a 256-frame block a write: each block paces the program, so MIDI (the
+                                             * clock) is read and timed a block (5.8 ms) at a time, not in bursts */
     }
 }
 
@@ -109,6 +116,53 @@ static void panel_message(uint32_t st, uint32_t d1, uint32_t d2)
     }
 }
 
+/* ---- MIDI clock: in, as X0X's USB MIDI in; out, to the other apps' FIFOs ---- */
+
+#define NCLK 4
+static struct {
+    const char *path;
+    int fd;
+    uint32_t tried;                     /* the last open tried (now_ms) */
+} clk_out[NCLK];
+static int nclk;
+
+static void clock_in(uint8_t b)         /* a realtime byte, queued as the simulator's MIDI in (plat_midi_in) */
+{
+    static uint8_t running;             /* the other app plays: between its START (or CONTINUE) and its STOP */
+    if (b == 0xFAu || b == 0xFBu)
+        running = 1;
+    else if (b == 0xFCu)
+        running = 0;
+    else if (b != 0xF8u || !running)
+        return;                         /* (its clock while it's stopped: not followed, so an app playing on its
+                                         * own keeps its time until the other's PLAY, never caught mid-bar) */
+    if (mi_w - mi_r < MQ)
+        min_q[mi_w++ % MQ] = 0x0Fu | (uint32_t)b << 8;
+}
+
+static void clock_out(uint32_t pkt)     /* everything X0X sends: its clock and transport go on */
+{
+    uint8_t b = (uint8_t)(pkt >> 8);
+    int k;
+    if ((pkt & 15u) != 0xFu || b < 0xF8u)
+        return;
+    for (k = 0; k < nclk; k++) {
+        if (clk_out[k].fd < 0) {
+            if (now_ms - clk_out[k].tried < 500u)
+                continue;
+            clk_out[k].tried = now_ms;
+            clk_out[k].fd = open(clk_out[k].path, O_WRONLY | O_NONBLOCK);   /* (ENXIO: no reader yet) */
+            if (clk_out[k].fd < 0)
+                continue;
+        }
+        if (write(clk_out[k].fd, &b, 1) < 0 && errno != EAGAIN) {          /* (EPIPE: that app stopped) */
+            close(clk_out[k].fd);
+            clk_out[k].fd = -1;
+            clk_out[k].tried = now_ms;
+        }
+    }
+}
+
 static uint8_t mbuf[3];
 static uint32_t mlen, mneed;
 
@@ -117,8 +171,10 @@ static void midi_bytes(const uint8_t *p, ssize_t n)
     ssize_t i;
     for (i = 0; i < n; i++) {
         uint8_t b = p[i];
-        if (b >= 0xF8u)
-            continue;                       /* real-time: not the panel's */
+        if (b >= 0xF8u) {
+            clock_in(b);                    /* real-time: the clock, not the panel's */
+            continue;
+        }
         if (b & 0x80u) {
             mbuf[0] = b, mlen = 1;
             mneed = (b & 0xF0u) == 0xC0u || (b & 0xF0u) == 0xD0u ? 2u : b < 0xF0u ? 3u : 0u;
@@ -227,6 +283,11 @@ int main(int argc, char **argv)
             remote_ch = (uint32_t)atoi(argv[i + 1]) - 1u;
         else if (!strcmp(argv[i], "--state"))
             state_path = argv[i + 1];
+        else if (!strcmp(argv[i], "--clock-out") && nclk < NCLK) {
+            clk_out[nclk].path = argv[i + 1];
+            clk_out[nclk].fd = -1;
+            clk_out[nclk++].tried = 0xFFFF0000u;    /* (so the first try is at once) */
+        }
     }
     if (!state_path) {
         snprintf(state_default, sizeof state_default, "%s/.local/share/x0x-companion-studio/store.bin",

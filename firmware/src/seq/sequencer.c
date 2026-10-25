@@ -398,10 +398,12 @@ static void ext_ticks(seq_t *s)
 {
     int t;
     uint32_t n = s->ext_pending;
+    uint32_t per = n && s->ext_since < FS ? (s->ext_since << 8) / n : 0;  /* ticks that came together (a host that hands MIDI over
+                                                      * in bursts): the time since the last ones, shared */
     s->ext_pending = 0;
     for (; n; n--) {
-        if (s->ext_since > 0 && s->ext_since < FS) {  /* tempo: smoothed tick period */
-            uint32_t q = s->ext_since << 8;
+        if (per > 0) {                                /* tempo: smoothed tick period */
+            uint32_t q = per;
             s->ext_period = s->ext_period ? s->ext_period - (s->ext_period >> 3) + (q >> 3) : q;
             s->ext_bpm = (float)FS * 60.0f * 256.0f / (24.0f * (float)s->ext_period);
         }

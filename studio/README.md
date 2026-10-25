@@ -26,6 +26,13 @@ hasn't yet: *Tested* below.
 - **Saved:** what X0X saves (settings, sounds, patterns, song, motion: its flash objects) in
   `~/.local/share/x0x-companion-studio/store.bin`, read before it starts. X0X autosaves while stopped; at the stop,
   anything not yet saved is saved first.
+- **Clock, with SLOOP on the Studio** ([SLOOP Remote Out](https://github.com/xoxoaudiolabs/sloop-remote-out)): the
+  Companion (its main branch after Studio v1.5) runs both at once and connects each one's MIDI clock to the other,
+  as two FM-1s cabled both ways. X0X follows an incoming clock by itself (its tempo turns amber) and sends its own
+  with GLOBAL › CLOCK OUT on, while it isn't following one. SLOOP leads by default there; to have X0X lead, set
+  SLOOP's SYNC to USB. X0X follows the other app's clock only while that app plays, so X0X playing on its own isn't
+  pulled off its beat when SLOOP opens. One change inside X0X's sequencer: clock ticks that arrive together share
+  the time since the last ones, so the tempo shown while following is right (it read 115 for 120).
 - **Not there:** break loops of your own (the user sample slots: the built-in break works); the screen reader.
 
 ## Build (on the Studio)
@@ -59,15 +66,29 @@ recorded by the Companion's recorder, X0X's screen captured 8 times a second (vi
   0 PipeWire errors. X0X took 8–31% of one core (about 20% on average), load average 0.5.
 - **X0X and SLOOP Remote Out's Studio program at once, 33 s,** both at 120 BPM: X0X as above, SLOOP playing four
   recorded tracks. No gaps, the clip check found nothing (peak 94%: two apps at full level add up), 0 PipeWire
-  errors; X0X about 19% of a core, SLOOP about 9%. They were started together but share no clock, so they drift
-  apart. This ran both as test programs of their own: the Companion itself runs one app at a time (starting
+  errors; X0X about 19% of a core, SLOOP about 9%. They were started together with no shared clock (this test
+  came before it), so they drifted apart. This ran both as test programs of their own: the Companion itself runs one app at a time (starting
   one stops the other).
 - Both exited cleanly when stopped (whether they saved wasn't checked in these runs).
 - Earlier checks: X0X's host simulator renders its showcase, perf and jam scripts in 5–8% of real time on one
   core; a sound change (KNOB 1: TUNE 34 → 44) saved at the stop on a PC; on the Studio, a first short check
   (three drum tracks, 8ths at 125 BPM) saved its file at the stop.
 
+**Clock with SLOOP** (2026-10-25):
+- By hand, from FM-1 A through the Companion's PLAY tiles: both running at once, SLOOP leading, playing together
+  in time by ear. A stutter when SLOOP opened was found this way and fixed; by hand afterwards, it was gone.
+- By a script on the Studio, each app's sound recorded: X0X following SLOOP at 120 and 130 BPM, through STOP and
+  PLAY, with no drift (each bar the same length in both), its tempo shown as 120–121 and 132 for 120 and 130;
+  SLOOP following X0X the same way. Two X0Xs, one following the other, in one recording: the follower 9–13 ms
+  after the leader on average, about 8–9 ms of jitter. X0X's beat steady while SLOOP was opened and closed next to
+  it.
+- X0X's own host tests: the sequencer and external-clock tests pass with the sequencer change. (Some of its other
+  tests can't run here: they need reference sources that aren't checked out, and fail the same without the change.)
+
 **Not tested yet:**
+- X0X leading SLOOP by hand (only by the script).
+- Turning off the leading app (HOLD OFF) while both play: the other should carry on at its own tempo, after a stop
+  of about half a second.
 - Every control one by one by hand (the stress test's controls were sent by a script).
 - The Companion's **< HOME**, **HOLD OFF** and + / − for X0X, and its MIXER channel.
 - Song mode on the Studio.

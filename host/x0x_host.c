@@ -118,6 +118,9 @@ int plat_midi_in(uint32_t *pkt)
 static uint32_t midi_out_count, clock_out_count, note_ons;
 void plat_midi_out(uint32_t pkt)
 {
+#ifdef X0X_MIDI_OUT_HOOK
+    X0X_MIDI_OUT_HOOK(pkt);                          /* a host of the simulator sends it on (studio/: the clock) */
+#endif
     midi_out_count++;
     if ((((pkt >> 8) & 0xF0) == 0x90) && ((pkt >> 24) & 0x7F))
         note_ons++;                                  /* the notes the sequence sent (expect noteons) */
