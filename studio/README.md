@@ -97,4 +97,18 @@ recorded by the Companion's recorder, X0X's screen captured 8 times a second (vi
 ## License
 
 GPL-3.0-only ([LICENSE](../LICENSE)), as X0X: built from X0X's sources by Charles Vestal, a fork of Felucca by Leo
-Kuroshita / Hügelton Instruments.
+Kuroshita / Hügelton Instruments. What's ours in this fork: see the note at the top of [the repo's README](../README.md).
+
+**Built and run with** (on the Studio, from Raspberry Pi OS's packages; not copied into this repository, each
+under its own licence):
+
+| Software | What for | Licence |
+|---|---|---|
+| GCC | building it | GPL-3.0-or-later (what it builds isn't bound by it: the GCC Runtime Library Exception) |
+| the GNU C library (glibc), libm | linked into it | LGPL-2.1-or-later |
+| Python 3, with Pillow | X0X's build scripts that make its generated headers (Pillow for the font) | PSF License; the PIL Software License (MIT-CMU) |
+| PipeWire (`pw-cat`) | its sound | MIT |
+| the Linux kernel (the framebuffer) | its screen | GPL-2.0 |
+
+The licences are each project's own, as Debian lists them in `/usr/share/doc/<package>/copyright`: that file is
+the one to go by.
