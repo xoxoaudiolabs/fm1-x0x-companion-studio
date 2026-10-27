@@ -26,6 +26,9 @@ hasn't yet: *Tested* below.
 - **Saved:** what X0X saves (settings, sounds, patterns, song, motion: its flash objects) in
   `~/.local/share/x0x-companion-studio/store.bin`, read before it starts. X0X autosaves while stopped; at the stop,
   anything not yet saved is saved first.
+- **Backups:** the FM-1 Companion (its main branch after Studio v1.5; Settings › Sloop › For: X0X Studio) backs
+  this project up as a `.x0b`, X0X's own backup format (the one X0X's backup page and `tools/x0x_backup.py` make
+  from an FM-1), and restores one (X0X stopped first; it saves). Not the break loops: the Studio's X0X has none yet.
 - **Clock, with SLOOP on the Studio** ([SLOOP Remote Out](https://github.com/xoxoaudiolabs/sloop-remote-out)): the
   Companion (its main branch after Studio v1.5) runs both at once and connects each one's MIDI clock to the other,
   as two FM-1s cabled both ways. X0X follows an incoming clock by itself (its tempo turns amber) and sends its own
@@ -47,6 +50,10 @@ mkdir -p ~/.local/share/x0x-companion-studio && cp studio/x0x-companion-studio ~
 The Companion (Studio v1.5 or later) shows **PLAY X0X** in MORE once that file exists.
 
 ## Tested
+
+**Hardware used:** the FM-1 Companion Studio (a Raspberry Pi 3 B+ on Raspberry Pi OS Lite, Trixie, with the Hosyond
+3.5" touchscreen), FM-1 A running SLOOP Remote Out (SLOOP 2.8.1 with REMOTE OUT, REMOTE on OUT 16), a JBL Go 3 over
+Bluetooth and headphones on the Studio's 3.5 mm jack.
 
 On the real Studio (Raspberry Pi 3 B+, Raspberry Pi OS Trixie), 2026-10-25.
 
@@ -85,6 +92,11 @@ recorded by the Companion's recorder, X0X's screen captured 8 times a second (vi
 - X0X's own host tests: the sequencer and external-clock tests pass with the sequencer change. (Some of its other
   tests can't run here: they need reference sources that aren't checked out, and fail the same without the change.)
 
+**Backups** (2026-10-26), by script on the Studio, not yet by hand from the Companion's screen:
+- The project of a real X0X on the Studio backed up to a `.x0b`; X0X's own `tools/x0x_backup.py info` reads it
+  (settings, sound, patterns, song and motion).
+- Restored into a copy, which X0X opened with the same screen as the original, pixel for pixel.
+
 **Not tested yet:**
 - X0X leading SLOOP by hand (only by the script).
 - Turning off the leading app (HOLD OFF) while both play: the other should carry on at its own tempo, after a stop
@@ -92,7 +104,8 @@ recorded by the Companion's recorder, X0X's screen captured 8 times a second (vi
 - Every control one by one by hand (the stress test's controls were sent by a script).
 - The Companion's **< HOME**, **HOLD OFF** and + / − for X0X, and its MIXER channel.
 - Song mode on the Studio.
-- A save loaded back by X0X on the Studio after a restart.
+- The Companion's Back up now and Restore for X0X by hand; a `.x0b` from an FM-1 running X0X restored here, or one
+  from here onto an FM-1.
 
 ## License
 
