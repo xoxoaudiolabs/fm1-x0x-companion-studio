@@ -41,6 +41,7 @@ hasn't yet: *Tested* below.
 ## Build (on the Studio)
 
 ```sh
+sudo apt-get install -y git         # Raspberry Pi OS Lite comes without it (gcc is there)
 git clone https://github.com/xoxoaudiolabs/fm1-x0x-companion-studio
 cd fm1-x0x-companion-studio
 sh studio/build.sh                  # needs gcc and python3; about 1.5 minutes on a Pi 3 B+
