@@ -26,11 +26,11 @@ hasn't yet: *Tested* below.
 - **Saved:** what X0X saves (settings, sounds, patterns, song, motion: its flash objects) in
   `~/.local/share/x0x-companion-studio/store.bin`, read before it starts. X0X autosaves while stopped; at the stop,
   anything not yet saved is saved first.
-- **Backups:** the FM-1 Companion (its main branch after Studio v1.5; Settings › Sloop › For: X0X Studio) backs
+- **Backups:** the FM-1 Companion (Studio v1.6 or later; Settings › Sloop › For: X0X Studio) backs
   this project up as a `.x0b`, X0X's own backup format (the one X0X's backup page and `tools/x0x_backup.py` make
   from an FM-1), and restores one (X0X stopped first; it saves). Not the break loops: the Studio's X0X has none yet.
 - **Clock, with SLOOP on the Studio** ([SLOOP Remote Out](https://github.com/xoxoaudiolabs/sloop-remote-out)): the
-  Companion (its main branch after Studio v1.5) runs both at once and connects each one's MIDI clock to the other,
+  Companion (Studio v1.6 or later) runs both at once and connects each one's MIDI clock to the other,
   as two FM-1s cabled both ways. X0X follows an incoming clock by itself (its tempo turns amber) and sends its own
   with GLOBAL › CLOCK OUT on, while it isn't following one. SLOOP leads by default there; to have X0X lead, set
   SLOOP's SYNC to USB. X0X follows the other app's clock only while that app plays, so X0X playing on its own isn't
