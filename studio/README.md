@@ -74,8 +74,8 @@ recorded by the Companion's recorder, X0X's screen captured 8 times a second (vi
 - **X0X and SLOOP Remote Out's Studio program at once, 33 s,** both at 120 BPM: X0X as above, SLOOP playing four
   recorded tracks. No gaps, the clip check found nothing (peak 94%: two apps at full level add up), 0 PipeWire
   errors; X0X about 19% of a core, SLOOP about 9%. They were started together with no shared clock (this test
-  came before it), so they drifted apart. This ran both as test programs of their own: the Companion itself runs one app at a time (starting
-  one stops the other).
+  came before it), so they drifted apart. This ran both as test programs of their own: the Companion then ran one app at a time (starting
+  one stopped the other); from Studio v1.6 it runs both, with a shared clock.
 - Both exited cleanly when stopped (whether they saved wasn't checked in these runs).
 - Earlier checks: X0X's host simulator renders its showcase, perf and jam scripts in 5–8% of real time on one
   core; a sound change (KNOB 1: TUNE 34 → 44) saved at the stop on a PC; on the Studio, a first short check
